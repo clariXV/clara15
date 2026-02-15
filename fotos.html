@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Invitación XV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{ --visor-aspect: 16 / 9; }
+    body { font-family: Arial, sans-serif; background:#f8f8f8; padding:20px; text-align:center; }
+    h1, h2 { margin: 20px 0; }
+    button{ background:#d63384;color:#fff;border:none;padding:12px 20px;border-radius:20px;font-size:16px;cursor:pointer; }
+    .toolbar{ display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+    .toolbar select, .toolbar input[type="range"]{ padding:8px 10px; border-radius:12px; border:1px solid #ddd; font-size:14px; }
+    .visor{ width:100%; max-width: 1000px; aspect-ratio: var(--visor-aspect); margin:0 auto 14px; background:#000; border-radius:20px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .visor img{ width:100%; height:100%; object-fit: cover; }
+    .galeria{ display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:10px; }
+    .foto-item{ position:relative; width:100%; height:120px; border-radius:10px; overflow:hidden; }
+    .foto-item img{ width:100%; height:100%; object-fit:cover; }
+    .btn-eliminar{ position:absolute; top:6px; right:6px; background:rgba(220,20,60,.92); color:#fff; border:none; border-radius:50%; width:22px; height:22px; padding:0; display:flex; align-items:center; justify-content:center; font-size:12px; line-height:1; cursor:pointer; }
+    @media (max-width: 420px){ .visor{ max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <h1>📸 Fotos en vivo !!</h1>
+
+  <div class="toolbar">
+    <label for="aspectSelect"><strong>Relación de aspecto:</strong></label>
+    <select id="aspectSelect" aria-label="Relación de aspecto del visor">
+      <option value="16 / 9" selected>16:9 (apaisado)</option>
+      <option value="4 / 3">4:3</option>
+      <option value="1 / 1">1:1 (cuadrado)</option>
+      <option value="21 / 9">21:9 (panorámico)</option>
+      <option value="3 / 2">3:2 (foto clásica)</option>
+      <option value="auto">Auto (alto flexible)</option>
+    </select>
+    <label for="maxWidth"><strong>Ancho en (px):</strong></label>
+    <input id="maxWidth" type="range" min="600" max="1400" step="20" value="1000">
+    <span id="mwVal">1000</span>
+  </div>
+
+  <div class="visor">
+    <img id="visorImg" alt="">
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*" hidden>
+  <button id="btnSubir">📸 Subí tu foto</button>
+
+  <div id="galeria" class="galeria"></div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const ES_ORGANIZADOR = true;
+    const CLAVE_ORGANIZADOR = "clari15";
+
+    firebase.initializeApp({
+      apiKey: "AIzaSyDwuP4lEqYSXzuccATa_s3QzfUKpWIVq_g",
+      authDomain: "clari-xv.firebaseapp.com",
+      projectId: "clari-xv",
+      storageBucket: "clari-xv.firebasestorage.app",
+      appId: "1:760531084277:web:f1ca4ce5fbe20a9ce3b6bc"
+    });
+    const storage = firebase.storage();
+    const db = firebase.firestore();
+
+    const fileInput = document.getElementById("fileInput");
+    const btnSubir = document.getElementById("btnSubir");
+    const galeria = document.getElementById("galeria");
+    const visorImg = document.getElementById("visorImg");
+    const aspectSelect = document.getElementById('aspectSelect');
+    const maxWidth = document.getElementById('maxWidth');
+    const mwVal = document.getElementById('mwVal');
+
+    btnSubir.onclick = () => fileInput.click();
+    fileInput.onchange = subirFoto;
+
+    function applyAspect(value){
+      const visor = document.querySelector('.visor');
+      if (value === 'auto'){
+        visor.style.aspectRatio = 'auto';
+        visor.style.minHeight = '320px';
+      } else {
+        visor.style.aspectRatio = value;
+        visor.style.minHeight = '';
+      }
+    }
+    aspectSelect.addEventListener('change', e => applyAspect(e.target.value));
+    applyAspect(aspectSelect.value);
+
+    function applyMaxWidth(px){
+      document.querySelector('.visor').style.maxWidth = px + 'px';
+      mwVal.textContent = px;
+    }
+    maxWidth.addEventListener('input', e => applyMaxWidth(e.target.value));
+    applyMaxWidth(maxWidth.value);
+
+    async function subirFoto(){
+      const file = fileInput.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      const path = 'fotos/' + Date.now() + '_' + file.name;
+      const ref = storage.ref(path);
+      const snap = await ref.put(file);
+      const url = await snap.ref.getDownloadURL();
+      await db.collection('fotos').add({ url, fullPath: path, fecha: new Date() });
+      fileInput.value = '';
+    }
+
+    async function eliminarFoto(docId, fullPath){
+      const clave = prompt('Clave de administrador');
+      if (clave !== CLAVE_ORGANIZADOR) return alert('❌ Clave incorrecta');
+      if (!confirm('¿Eliminar foto definitivamente?')) return;
+      await storage.ref(fullPath).delete();
+      await db.collection('fotos').doc(docId).delete();
+    }
+
+    let fotos = [];
+    let interval = null;
+
+    visorImg.onerror = () => {
+      const idx = fotos.indexOf(visorImg.src);
+      if (idx >= 0) fotos.splice(idx, 1);
+      if (fotos.length > 0) {
+        visorImg.src = fotos[Math.floor(Math.random() * fotos.length)];
+      } else {
+        visorImg.removeAttribute('src');
+      }
+    };
+
+    function startOrRefresh(){
+      if (interval) clearInterval(interval);
+      if (fotos.length === 0){ visorImg.removeAttribute('src'); return; }
+      const rnd = () => fotos[Math.floor(Math.random() * fotos.length)];
+      // Si el visor está vacío, mostrar primero
+      if (!visorImg.getAttribute('src')) visorImg.src = rnd();
+      interval = setInterval(() => { visorImg.src = rnd(); }, 4000);
+    }
+
+    db.collection('fotos').orderBy('fecha','desc').onSnapshot(snapshot => {
+      galeria.innerHTML = '';
+      fotos = [];
+      let pending = 0;
+
+      snapshot.forEach(doc => {
+        const { url, fullPath } = doc.data();
+        pending++;
+        const probe = new Image();
+        probe.onload = () => {
+          fotos.push(url);
+          const cont = document.createElement('div');
+          cont.className = 'foto-item';
+          const img = document.createElement('img');
+          img.src = url;
+          cont.appendChild(img);
+          if (ES_ORGANIZADOR){
+            const btn = document.createElement('button');
+            btn.className = 'btn-eliminar';
+            btn.textContent = '✕';
+            btn.onclick = () => eliminarFoto(doc.id, fullPath);
+            cont.appendChild(btn);
+          }
+          galeria.appendChild(cont);
+          pending--; if (pending===0) startOrRefresh();
+        };
+        probe.onerror = () => { pending--; if (pending===0) startOrRefresh(); };
+        probe.src = url;
+      });
+
+      if (pending===0) startOrRefresh();
+    });
+  </script>
+</body>
+</html>
