@@ -6,7 +6,8 @@
   <title>Confirmar Asistencia</title>
 
   <!-- Bootstrap CSS -->
-  https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet" />
 
   <style>
     :root{
@@ -80,6 +81,7 @@
       <div id="form-container">
         <form id="asistenciaForm" novalidate>
           <div id="registros-container">
+
             <!-- REGISTRO 1 -->
             <div class="registro" data-index="1">
               <h5>Invitado 1</h5>
@@ -88,20 +90,25 @@
                   <label class="form-label">Nombre *</label>
                   <input type="text" id="nombre-1" class="form-control" required>
                 </div>
+
                 <div class="col-12">
                   <label class="form-label">Apellido *</label>
                   <input type="text" id="apellido-1" class="form-control" required>
                 </div>
+
                 <div class="col-12">
                   <label class="form-label">DNI *</label>
                   <input type="text" id="dni-1" class="form-control" maxlength="9" inputmode="numeric" required>
                   <div class="form-text">Solo números (7 a 9 dígitos).</div>
                 </div>
+
                 <input type="hidden" id="email-1" value="" class="d-none">
+
                 <div class="col-12">
                   <label class="form-label">Comentarios (opcional)</label>
                   <textarea id="comentarios-1" class="form-control"></textarea>
                 </div>
+
                 <input type="hidden" id="fecha-1">
               </div>
             </div>
@@ -136,16 +143,19 @@
                 `);
               }
             </script>
+
           </div>
 
           <div class="d-flex gap-2 mt-3">
             <button type="button" id="btnAgregar" class="btn btn-outline-brand flex-fill">
               Agregar otro Invitado
             </button>
+
             <button type="submit" class="btn btn-brand flex-fill">
               ENVIAR
             </button>
           </div>
+
         </form>
       </div>
 
@@ -156,7 +166,7 @@
             <h4 class="text-success mb-3">Muchas gracias por confirmar tu presencia</h4>
             <ul id="listaNombres"></ul>
             <div class="text-center mt-3">
-              ./index.htmlVOLVER A LA INVITACIÓN</a>
+              <a href="./index.html" class="btn btn-brand btn-lg px-4">VOLVER A LA INVITACIÓN</a>
             </div>
           </div>
         </div>
@@ -166,11 +176,11 @@
   </div>
 
   <!-- Bootstrap JS -->
-  https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js</script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Lógica -->
   <script>
-    // ⚠️ URL /exec EXACTO (el mismo de Postman y del deployment activo)
+    // URL /exec ACTUAL (el mismo de Postman y del deployment activo)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzN7znUk70M2EYjRk_5u4FgHO374tc2eTcffjXaGQqhacZH6B92ujkVkivpitY6Jbd-/exec";
 
     const formContainer   = document.getElementById("form-container");
@@ -236,13 +246,17 @@
       }
 
       try {
-        // Enviar como POST simple (evita preflight)
+        // Enviar como POST simple form-url-encoded (evita preflight)
         const payload = new URLSearchParams();
         payload.append('data', JSON.stringify({ registros }));
 
-        const resp = await fetch(WEBAPP_URL, { method: "POST", body: payload });
+        const resp = await fetch(WEBAPP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body: payload
+        });
 
-        // Leer respuesta (Apps Script devuelve JSON con CORS '*')
+        // Leer respuesta JSON (Apps Script devuelve JSON con CORS '*')
         const data = await resp.json();
         console.log("Respuesta WebApp:", data);
 
@@ -251,7 +265,6 @@
           return;
         }
 
-        // Reset y “gracias”
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
         tituloPrincipal.classList.add("d-none");
@@ -265,3 +278,4 @@
   </script>
 </body>
 </html>
+``
