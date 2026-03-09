@@ -87,32 +87,25 @@
             <!-- REGISTRO 1 -->
             <div class="registro" data-index="1">
               <h5>Invitado 1</h5>
-
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label">Nombre *</label>
                   <input type="text" id="nombre-1" class="form-control" required>
                 </div>
-
                 <div class="col-12">
                   <label class="form-label">Apellido *</label>
                   <input type="text" id="apellido-1" class="form-control" required>
                 </div>
-
                 <div class="col-12">
                   <label class="form-label">DNI *</label>
                   <input type="text" id="dni-1" class="form-control" maxlength="9" inputmode="numeric" required>
                   <div class="form-text">Solo números (7 a 9 dígitos).</div>
                 </div>
-
-                <!-- EMAIL oculto -->
                 <input type="hidden" id="email-1" value="" class="d-none">
-
                 <div class="col-12">
                   <label class="form-label">Comentarios (opcional)</label>
                   <textarea id="comentarios-1" class="form-control"></textarea>
                 </div>
-
                 <input type="hidden" id="fecha-1">
               </div>
             </div>
@@ -154,7 +147,6 @@
             <button type="button" id="btnAgregar" class="btn btn-outline-brand flex-fill">
               Agregar otro Invitado
             </button>
-
             <button type="submit" class="btn btn-brand flex-fill">
               ENVIAR
             </button>
@@ -169,7 +161,6 @@
           <div class="card-body">
             <h4 class="text-success mb-3">Muchas gracias por confirmar tu presencia</h4>
             <ul id="listaNombres"></ul>
-
             <div class="text-center mt-3">
               <a href="./index.html" class="btn btn-brand btn-lg px-4">VOLVER A LA INVITACIÓN</a>
             </div>
@@ -185,25 +176,22 @@
 
   <!-- Lógica -->
   <script>
-    // ⚠️ Pegá aquí el MISMO URL /exec del Web App que probaste en Postman:
+    // ⚠️ URL /exec EXACTO (el mismo que te funcionó en Postman)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzN7znUk70M2EYjRk_5u4FgHO374tc2eTcffjXaGQqhacZH6B92ujkVkivpitY6Jbd-/exec";
-
+                        
     const formContainer   = document.getElementById("form-container");
     const btnAgregar      = document.getElementById("btnAgregar");
     const resultado       = document.getElementById("resultado");
     const listaNombresEl  = document.getElementById("listaNombres");
     const tituloPrincipal = document.getElementById("titulo-principal");
 
-    // Inicialización
     document.addEventListener('DOMContentLoaded', () => setFechaHoy());
 
-    // Agregar persona (máximo 5 tarjetas)
     btnAgregar?.addEventListener("click", () => {
       const ocultos = [...document.querySelectorAll(".registro.oculto")];
       if (ocultos.length > 0) ocultos[0].classList.remove("oculto");
     });
 
-    // Setear fecha oculta a hoy (AAAA-MM-DD)
     function setFechaHoy() {
       const hoy = new Date().toISOString().split("T")[0];
       for (let i = 1; i <= 5; i++) {
@@ -212,17 +200,16 @@
       }
     }
 
-    // Helper seguro para leer inputs
     function val(id) { return document.getElementById(id)?.value.trim() || ""; }
 
-    // Solo números en DNI
+    // DNI solo números
     document.addEventListener("input", (e) => {
       if (e.target.id && e.target.id.startsWith("dni-")) {
         e.target.value = e.target.value.replace(/\D/g, "").substring(0, 9);
       }
     });
 
-    // Submit del formulario
+    // Submit
     document.getElementById("asistenciaForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -237,10 +224,8 @@
         const email       = val(`email-${i}`);
         const fecha       = val(`fecha-${i}`);
 
-        // Ignorar tarjetas vacías
         if (!nombre && !apellido && !dni && !comentarios) continue;
 
-        // Validación mínima
         if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
           alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
           return;
@@ -248,7 +233,6 @@
 
         registros.push({ nombre, apellido, dni, email, comentarios, fecha });
 
-        // Mostrar en la lista confirmada
         const li = document.createElement("li");
         li.textContent = `${nombre} ${apellido}`;
         listaNombresEl.appendChild(li);
@@ -260,17 +244,19 @@
       }
 
       try {
-        // Enviar como JSON (sin no-cors)
+        // 👉 Enviar como POST simple (SIN headers) para evitar preflight
+        const payload = new URLSearchParams();
+        payload.append('data', JSON.stringify({ registros }));
+
         const resp = await fetch(WEBAPP_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ registros })
+          body: payload
+          // (sin headers -> el navegador usará application/x-www-form-urlencoded)
         });
 
-        // Si agregaste CORS en Apps Script, podés leer la respuesta:
+        // Si abriste CORS en Apps Script, podrías leer:
         // const data = await resp.json(); console.log("Servidor:", data);
 
-        // Reset y “gracias”
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
         tituloPrincipal.classList.add("d-none");
