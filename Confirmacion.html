@@ -285,11 +285,11 @@
       try {
         await fetch(WEBAPP_URL, {
           method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ registros })
         });
 
+        
         // Ocultar formulario y título
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
@@ -307,6 +307,7 @@
 
 </body>
 </html>
+
 
 
 
