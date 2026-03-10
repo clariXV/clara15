@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Confirmar Asistencia</title>
 
-  <!-- Bootstrap (CSS) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/TtE3Mo/k7ZeZDyx"
+    crossorigin="anonymous"
+  />
 
   <style>
     :root{
@@ -22,28 +27,24 @@
       --card-bg: rgba(255,255,255,.96);
       --card-border: #e5e7eb;
     }
-
     html, body{
       height: 100%;
       margin: 0;
       background-color: var(--brand-brown);
       color: #111;
     }
-
     .page-scrim{
       min-height: 100vh;
       background: var(--scrim);
       backdrop-filter: blur(3px);
       -webkit-backdrop-filter: blur(3px);
     }
-
     .titulo{
       font-weight: 800;
       letter-spacing: .02em;
       color: #1a1a1a;
       text-align: center;
     }
-
     .registro{
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -51,7 +52,6 @@
       padding: 1rem;
     }
     .registro + .registro{ margin-top: 1rem; }
-
     .btn-brand{
       background-color: var(--brand-brown);
       border-color: var(--brand-brown);
@@ -63,7 +63,6 @@
       border-color: var(--brand-brown-600);
       color: var(--brand-contrast);
     }
-
     .btn-outline-brand{
       color: var(--brand-brown);
       border-color: var(--brand-brown);
@@ -75,7 +74,6 @@
       background-color: var(--brand-brown);
       border-color: var(--brand-brown);
     }
-
     #listaNombres li { font-weight: 700; }
     .oculto{ display: none !important; }
   </style>
@@ -102,29 +100,29 @@
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label">Nombre *</label>
-                  <input type="text" id="nombre-1" class="form-control" required>
+                  <input type="text" id="nombre-1" class="form-control" required />
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label">Apellido *</label>
-                  <input type="text" id="apellido-1" class="form-control" required>
+                   <label class="form-label">Apellido *</label>
+                   <input type="text" id="apellido-1" class="form-control" required />
                 </div>
 
                 <div class="col-12">
                   <label class="form-label">DNI *</label>
-                  <input type="text" id="dni-1" class="form-control" maxlength="9" inputmode="numeric" required>
+                  <input type="text" id="dni-1" class="form-control" maxlength="9" inputmode="numeric" required />
                   <div class="form-text">Solo números (7 a 9 dígitos).</div>
                 </div>
 
                 <!-- EMAIL oculto (opcional) -->
-                <input type="hidden" id="email-1" value="" class="d-none">
+                <input type="hidden" id="email-1" value="" class="d-none" />
 
                 <div class="col-12">
                   <label class="form-label">Comentarios (opcional)</label>
                   <textarea id="comentarios-1" class="form-control"></textarea>
                 </div>
 
-                <input type="hidden" id="fecha-1">
+                <input type="hidden" id="fecha-1" />
               </div>
             </div>
 
@@ -137,22 +135,22 @@
                     <div class="row g-3">
                       <div class="col-12">
                         <label class="form-label">Nombre *</label>
-                        <input type="text" id="nombre-${i}" class="form-control">
+                        <input type="text" id="nombre-${i}" class="form-control" />
                       </div>
                       <div class="col-12">
                         <label class="form-label">Apellido *</label>
-                        <input type="text" id="apellido-${i}" class="form-control">
+                        <input type="text" id="apellido-${i}" class="form-control" />
                       </div>
                       <div class="col-12">
                         <label class="form-label">DNI *</label>
-                        <input type="text" id="dni-${i}" class="form-control" maxlength="9" inputmode="numeric">
+                        <input type="text" id="dni-${i}" class="form-control" maxlength="9" inputmode="numeric" />
                       </div>
-                      <input type="hidden" id="email-${i}" class="d-none">
+                      <input type="hidden" id="email-${i}" class="d-none" />
                       <div class="col-12">
                         <label class="form-label">Comentarios</label>
                         <textarea id="comentarios-${i}" class="form-control"></textarea>
                       </div>
-                      <input type="hidden" id="fecha-${i}">
+                      <input type="hidden" id="fecha-${i}" />
                     </div>
                   </div>
                 `);
@@ -165,7 +163,6 @@
             <button type="button" id="btnAgregar" class="btn btn-outline-brand flex-fill">
               Agregar otro Invitado
             </button>
-
             <button type="submit" class="btn btn-brand flex-fill">
               ENVIAR
             </button>
@@ -192,12 +189,16 @@
     </div>
   </div>
 
-  <!-- Bootstrap (JS) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"
+  ></script>
 
   <!-- Lógica -->
   <script>
-    // ⚠️ Usá el URL /exec de tu WebApp ACTIVO
+    // ⚠️ URL del Web App ACTIVO (tu /exec actual)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzN7znUk70M2EYjRk_5u4FgHO374tc2eTcffjXaGQqhacZH6B92ujkVkivpitY6Jbd-/exec";
 
     const formContainer   = document.getElementById("form-container");
@@ -206,13 +207,17 @@
     const listaNombresEl  = document.getElementById("listaNombres");
     const tituloPrincipal = document.getElementById("titulo-principal");
 
-    document.addEventListener('DOMContentLoaded', () => setFechaHoy());
+    document.addEventListener('DOMContentLoaded', () => {
+      setFechaHoy();
+    });
 
+    // Agregar persona (máximo 5)
     btnAgregar.addEventListener("click", () => {
       const ocultos = [...document.querySelectorAll(".registro.oculto")];
       if (ocultos.length > 0) ocultos[0].classList.remove("oculto");
     });
 
+    // Setear fecha oculta a hoy (AAAA-MM-DD)
     function setFechaHoy() {
       const hoy = new Date().toISOString().split("T")[0];
       for (let i = 1; i <= 5; i++) {
@@ -221,7 +226,7 @@
       }
     }
 
-    // ✅ Helper robusto
+    // ✅ Helper robusto (arreglado)
     function val(id) { return document.getElementById(id)?.value.trim() || ""; }
 
     // DNI solo números
@@ -243,13 +248,13 @@
         const apellido    = val(`apellido-${i}`);
         const dni         = val(`dni-${i}`);
         const comentarios = val(`comentarios-${i}`);
-        const email       = val(`email-${i}`); // oculto (opcional)
+        const email       = val(`email-${i}`);
         const fecha       = val(`fecha-${i}`);
 
         // Ignorar tarjeta vacía
         if (!nombre && !apellido && !dni && !comentarios) continue;
 
-        // ✅ Validación mínima
+        // ✅ Validación mínima (arreglada con ||)
         if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
           alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
           return;
@@ -257,6 +262,7 @@
 
         registros.push({ nombre, apellido, dni, email, comentarios, fecha });
 
+        // Mostrar en la lista
         const li = document.createElement("li");
         li.textContent = `${nombre} ${apellido}`;
         listaNombresEl.appendChild(li);
@@ -268,7 +274,7 @@
       }
 
       try {
-        // 👉 POST simple (form-url-encoded) → evita preflight CORS y Apps Script lo parsea fácil
+        // 👉 POST simple (form-url-encoded) → evita preflight CORS
         const payload = new URLSearchParams();
         payload.append('data', JSON.stringify({ registros }));
 
@@ -278,13 +284,16 @@
           body: payload
         });
 
+        // Si querés inspeccionar la respuesta:
+        // const text = await resp.text(); console.log("Respuesta del WebApp:", text);
+
         if (!resp.ok) {
           const text = await resp.text();
           alert("No se insertó. HTTP " + resp.status + " - " + text.slice(0, 200));
           return;
         }
 
-        // Éxito
+        // Éxito → reset y mensaje
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
         tituloPrincipal.classList.add("d-none");
