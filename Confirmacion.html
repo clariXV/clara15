@@ -5,26 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Confirmar Asistencia</title>
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet" />
+  <!-- Bootstrap (CSS) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
 
   <style>
     :root{
-      /* 🎨 Colores base */
+      /* Paleta */
       --brand-brown: #4B3523;
-      --brand-brown-600: #3F2B1B;  /* hover/active */
+      --brand-brown-600: #3F2B1B;
       --brand-contrast: #ffffff;
 
-      /* Capa translúcida para legibilidad del contenido sobre fondo oscuro */
+      /* Legibilidad */
       --scrim: rgba(255,255,255,.86);
 
-      /* Tarjetas del formulario */
+      /* Tarjetas */
       --card-bg: rgba(255,255,255,.96);
       --card-border: #e5e7eb;
     }
 
-    /* Fondo */
     html, body{
       height: 100%;
       margin: 0;
@@ -32,7 +33,6 @@
       color: #111;
     }
 
-    /* Capa de suavizado */
     .page-scrim{
       min-height: 100vh;
       background: var(--scrim);
@@ -40,7 +40,6 @@
       -webkit-backdrop-filter: blur(3px);
     }
 
-    /* Título */
     .titulo{
       font-weight: 800;
       letter-spacing: .02em;
@@ -48,7 +47,6 @@
       text-align: center;
     }
 
-    /* Tarjetas por invitado */
     .registro{
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -57,7 +55,6 @@
     }
     .registro + .registro{ margin-top: 1rem; }
 
-    /* Botones tema marrón */
     .btn-brand{
       background-color: var(--brand-brown);
       border-color: var(--brand-brown);
@@ -82,10 +79,7 @@
       border-color: var(--brand-brown);
     }
 
-    /* Lista de confirmados */
     #listaNombres li { font-weight: 700; }
-
-    /* Utilidad */
     .oculto{ display: none !important; }
   </style>
 </head>
@@ -201,13 +195,15 @@
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap (JS) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Lógica -->
   <script>
     // ⚠️ Pegá aquí el MISMO URL /exec del Web App (deployment ACTIVO)
-    const WEBAPP_URL = "PEGÁ_AQUÍ_TU_URL_EXEC";
+
+      const WEBAPP_URL =
+      "https://script.google.com/macros/s/AKfycbzN7znUk70M2EYjRk_5u4FgHO374tc2eTcffjXaGQqhacZH6B92ujkVkivpitY6Jbd-/exec";
 
     const formContainer   = document.getElementById("form-container");
     const btnAgregar      = document.getElementById("btnAgregar");
@@ -215,16 +211,13 @@
     const listaNombresEl  = document.getElementById("listaNombres");
     const tituloPrincipal = document.getElementById("titulo-principal");
 
-    // Inicialización
     document.addEventListener('DOMContentLoaded', () => setFechaHoy());
 
-    // Agregar persona (máximo 5)
     btnAgregar.addEventListener("click", () => {
       const ocultos = [...document.querySelectorAll(".registro.oculto")];
       if (ocultos.length > 0) ocultos[0].classList.remove("oculto");
     });
 
-    // Setear fecha oculta a hoy (AAAA-MM-DD)
     function setFechaHoy() {
       const hoy = new Date().toISOString().split("T")[0];
       for (let i = 1; i <= 5; i++) {
@@ -233,17 +226,17 @@
       }
     }
 
-    // ✅ Helper seguro (arreglado)
+    // ✅ Arreglado: helper robusto
     function val(id) { return document.getElementById(id)?.value.trim() || ""; }
 
-    // DNI solo números (7–9 dígitos)
+    // DNI solo números
     document.addEventListener("input", (e) => {
       if (e.target.id && e.target.id.startsWith("dni-")) {
         e.target.value = e.target.value.replace(/\D/g, "").substring(0, 9);
       }
     });
 
-    // Submit del formulario
+    // Enviar formulario
     document.getElementById("asistenciaForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -255,13 +248,13 @@
         const apellido    = val(`apellido-${i}`);
         const dni         = val(`dni-${i}`);
         const comentarios = val(`comentarios-${i}`);
-        const email       = val(`email-${i}`); // oculto
+        const email       = val(`email-${i}`); // oculto (opcional)
         const fecha       = val(`fecha-${i}`);
 
-        // Ignorar tarjetas vacías
+        // Ignorar tarjeta vacía
         if (!nombre && !apellido && !dni && !comentarios) continue;
 
-        // ✅ Validación mínima (arreglada con ||)
+        // ✅ Arreglado: condición con OR (||)
         if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
           alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
           return;
@@ -269,7 +262,6 @@
 
         registros.push({ nombre, apellido, dni, email, comentarios, fecha });
 
-        // Mostrar en lista
         const li = document.createElement("li");
         li.textContent = `${nombre} ${apellido}`;
         listaNombresEl.appendChild(li);
@@ -281,7 +273,7 @@
       }
 
       try {
-        // 👉 Enviar como POST simple (form-url-encoded) → evita preflight CORS
+        // 👉 POST simple (form-url-encoded) para evitar preflight CORS
         const payload = new URLSearchParams();
         payload.append('data', JSON.stringify({ registros }));
 
@@ -291,8 +283,8 @@
           body: payload
         });
 
-        // Si querés ver qué devolvió el servidor:
-        // const text = await resp.text(); console.log("Respuesta WebApp:", text);
+        // (Opcional) Inspeccionar texto de respuesta:
+        // const text = await resp.text(); console.log("Respuesta:", text);
 
         if (!resp.ok) {
           const text = await resp.text();
@@ -300,7 +292,7 @@
           return;
         }
 
-        // Reset y “gracias”
+        // Éxito
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
         tituloPrincipal.classList.add("d-none");
