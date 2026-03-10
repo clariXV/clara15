@@ -11,7 +11,7 @@
 
   <style>
     :root{
-      /* 🎨 Marrón del arte (podés ajustar fino si querés) */
+      /* 🎨 Colores base */
       --brand-brown: #4B3523;
       --brand-brown-600: #3F2B1B;  /* hover/active */
       --brand-contrast: #ffffff;
@@ -23,24 +23,32 @@
       --card-bg: rgba(255,255,255,.96);
       --card-border: #e5e7eb;
     }
+
+    /* Fondo */
     html, body{
       height: 100%;
       margin: 0;
       background-color: var(--brand-brown);
       color: #111;
     }
+
+    /* Capa de suavizado */
     .page-scrim{
       min-height: 100vh;
       background: var(--scrim);
       backdrop-filter: blur(3px);
       -webkit-backdrop-filter: blur(3px);
     }
+
+    /* Título */
     .titulo{
       font-weight: 800;
       letter-spacing: .02em;
       color: #1a1a1a;
       text-align: center;
     }
+
+    /* Tarjetas por invitado */
     .registro{
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -48,6 +56,8 @@
       padding: 1rem;
     }
     .registro + .registro{ margin-top: 1rem; }
+
+    /* Botones tema marrón */
     .btn-brand{
       background-color: var(--brand-brown);
       border-color: var(--brand-brown);
@@ -72,7 +82,10 @@
       border-color: var(--brand-brown);
     }
 
+    /* Lista de confirmados */
     #listaNombres li { font-weight: 700; }
+
+    /* Utilidad */
     .oculto{ display: none !important; }
   </style>
 </head>
@@ -112,7 +125,7 @@
                   <div class="form-text">Solo números (7 a 9 dígitos).</div>
                 </div>
 
-                <!-- EMAIL oculto (se mantiene para el envío) -->
+                <!-- EMAIL oculto (opcional) -->
                 <input type="hidden" id="email-1" value="" class="d-none">
 
                 <div class="col-12">
@@ -177,7 +190,7 @@
             <h4 class="text-success mb-3">Muchas gracias por confirmar tu presencia</h4>
             <ul id="listaNombres"></ul>
 
-            <!-- ⬇️ Botón marrón para volver a la invitación -->
+            <!-- Botón para volver a la invitación -->
             <div class="text-center mt-3">
               <a href="./index.html" class="btn btn-brand btn-lg px-4">VOLVER A LA INVITACIÓN</a>
             </div>
@@ -194,8 +207,7 @@
   <!-- Lógica -->
   <script>
     // ⚠️ Pegá aquí el MISMO URL /exec del Web App (deployment ACTIVO)
-    const WEBAPP_URL =
-      "https://script.google.com/macros/s/AKfycbzN7znUk70M2EYjRk_5u4FgHO374tc2eTcffjXaGQqhacZH6B92ujkVkivpitY6Jbd-/exec";
+    const WEBAPP_URL = "PEGÁ_AQUÍ_TU_URL_EXEC";
 
     const formContainer   = document.getElementById("form-container");
     const btnAgregar      = document.getElementById("btnAgregar");
@@ -203,10 +215,8 @@
     const listaNombresEl  = document.getElementById("listaNombres");
     const tituloPrincipal = document.getElementById("titulo-principal");
 
-    document.addEventListener('DOMContentLoaded', () => {
-      setFechaHoy();
-      console.log("confirmacion.html listo (build check)");
-    });
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => setFechaHoy());
 
     // Agregar persona (máximo 5)
     btnAgregar.addEventListener("click", () => {
@@ -223,17 +233,17 @@
       }
     }
 
-    // ✅ Arreglado: helper seguro
+    // ✅ Helper seguro (arreglado)
     function val(id) { return document.getElementById(id)?.value.trim() || ""; }
 
-    // DNI solo números
+    // DNI solo números (7–9 dígitos)
     document.addEventListener("input", (e) => {
       if (e.target.id && e.target.id.startsWith("dni-")) {
         e.target.value = e.target.value.replace(/\D/g, "").substring(0, 9);
       }
     });
 
-    // Submit → oculta formulario y título; muestra resultado
+    // Submit del formulario
     document.getElementById("asistenciaForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -245,13 +255,13 @@
         const apellido    = val(`apellido-${i}`);
         const dni         = val(`dni-${i}`);
         const comentarios = val(`comentarios-${i}`);
-        const email       = val(`email-${i}`); // se mantiene para el envío (oculto)
+        const email       = val(`email-${i}`); // oculto
         const fecha       = val(`fecha-${i}`);
 
-        // Ignorar registros totalmente vacíos
+        // Ignorar tarjetas vacías
         if (!nombre && !apellido && !dni && !comentarios) continue;
 
-        // ✅ Arreglado: validación con operadores ||
+        // ✅ Validación mínima (arreglada con ||)
         if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
           alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
           return;
@@ -259,7 +269,7 @@
 
         registros.push({ nombre, apellido, dni, email, comentarios, fecha });
 
-        // Agregar al listado visible
+        // Mostrar en lista
         const li = document.createElement("li");
         li.textContent = `${nombre} ${apellido}`;
         listaNombresEl.appendChild(li);
@@ -271,7 +281,7 @@
       }
 
       try {
-        // 👉 POST simple (form-url-encoded) — evita preflight y Apps Script lo parsea fácil
+        // 👉 Enviar como POST simple (form-url-encoded) → evita preflight CORS
         const payload = new URLSearchParams();
         payload.append('data', JSON.stringify({ registros }));
 
@@ -281,20 +291,19 @@
           body: payload
         });
 
-        // Si querés, podés inspeccionar:
-        // const text = await resp.text(); console.log("Respuesta:", text);
+        // Si querés ver qué devolvió el servidor:
+        // const text = await resp.text(); console.log("Respuesta WebApp:", text);
 
         if (!resp.ok) {
-          alert("No se insertó. HTTP " + resp.status);
+          const text = await resp.text();
+          alert("No se insertó. HTTP " + resp.status + " - " + text.slice(0, 200));
           return;
         }
 
-        // Ocultar formulario y título
+        // Reset y “gracias”
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
         tituloPrincipal.classList.add("d-none");
-
-        // Mostrar resultado final
         resultado.classList.remove("d-none");
 
       } catch (err) {
