@@ -1,268 +1,89 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Confirmar Asistencia</title>
-
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet" />
-
-  <style>
-    :root{
-      --brand-brown: #4B3523;
-      --brand-brown-600: #3F2B1B;
-      --brand-contrast: #ffffff;
-      --scrim: rgba(255,255,255,.86);
-      --card-bg: rgba(255,255,255,.96);
-      --card-border: #e5e7eb;
-    }
-    html, body{
-      height: 100%;
-      margin: 0;
-      background-color: var(--brand-brown);
-      color: #111;
-    }
-    .page-scrim{
-      min-height: 100vh;
-      background: var(--scrim);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-    }
-    .titulo{
-      font-weight: 800;
-      letter-spacing: .02em;
-      color: #1a1a1a;
-      text-align: center;
-    }
-    .registro{
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: .6rem;
-      padding: 1rem;
-    }
-    .registro + .registro{ margin-top: 1rem; }
-    .btn-brand{
-      background-color: var(--brand-brown);
-      border-color: var(--brand-brown);
-      color: var(--brand-contrast);
-    }
-    .btn-brand:hover, .btn-brand:focus{
-      background-color: var(--brand-brown-600);
-      border-color: var(--brand-brown-600);
-      color: var(--brand-contrast);
-    }
-    .btn-outline-brand{
-      color: var(--brand-brown);
-      border-color: var(--brand-brown);
-      background: transparent;
-    }
-    .btn-outline-brand:hover, .btn-outline-brand:focus{
-      color: var(--brand-contrast);
-      background-color: var(--brand-brown);
-      border-color: var(--brand-brown);
-    }
-    #listaNombres li { font-weight: 700; }
-    .oculto{ display: none !important; }
-  </style>
-</head>
-
-<body>
-  <div class="page-scrim">
-    <div class="container py-4">
-
-      <h3 id="titulo-principal" class="titulo mb-4">
-        Por favor confirmá tu asistencia a mi Cumple
-      </h3>
-
-      <!-- FORM -->
-      <div id="form-container">
-        <form id="asistenciaForm" novalidate>
-          <div id="registros-container">
-
-            <!-- REGISTRO 1 -->
-            <div class="registro" data-index="1">
-              <h5>Invitado 1</h5>
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label">Nombre *</label>
-                  <input type="text" id="nombre-1" class="form-control" required>
-                </div>
-                <div class="col-12">
-                  <label class="form-label">Apellido *</label>
-                  <input type="text" id="apellido-1" class="form-control" required>
-                </div>
-                <div class="col-12">
-                  <label class="form-label">DNI *</label>
-                  <input type="text" id="dni-1" class="form-control" maxlength="9" inputmode="numeric" required>
-                  <div class="form-text">Solo números (7 a 9 dígitos).</div>
-                </div>
-
-                <input type="hidden" id="email-1" value="" class="d-none">
-                <div class="col-12">
-                  <label class="form-label">Comentarios (opcional)</label>
-                  <textarea id="comentarios-1" class="form-control"></textarea>
-                </div>
-                <input type="hidden" id="fecha-1">
-              </div>
-            </div>
-
-            <!-- REGISTROS 2..5 -->
-            <script>
-              for (let i = 2; i <= 5; i++) {
-                document.write(`
-                  <div class="registro oculto" data-index="${i}">
-                    <h5>Invitado ${i}</h5>
-                    <div class="row g-3">
-                      <div class="col-12">
-                        <label class="form-label">Nombre *</label>
-                        <input type="text" id="nombre-${i}" class="form-control">
-                      </div>
-                      <div class="col-12">
-                        <label class="form-label">Apellido *</label>
-                        <input type="text" id="apellido-${i}" class="form-control">
-                      </div>
-                      <div class="col-12">
-                        <label class="form-label">DNI *</label>
-                        <input type="text" id="dni-${i}" class="form-control" maxlength="9" inputmode="numeric">
-                      </div>
-                      <input type="hidden" id="email-${i}" class="d-none">
-                      <div class="col-12">
-                        <label class="form-label">Comentarios</label>
-                        <textarea id="comentarios-${i}" class="form-control"></textarea>
-                      </div>
-                      <input type="hidden" id="fecha-${i}">
-                    </div>
-                  </div>
-                `);
-              }
-            </script>
-
-          </div>
-
-          <div class="d-flex gap-2 mt-3">
-            <button type="button" id="btnAgregar" class="btn btn-outline-brand flex-fill">Agregar otro Invitado</button>
-            <button type="submit" class="btn btn-brand flex-fill">ENVIAR</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- RESULTADO -->
-      <div id="resultado" class="d-none mt-4">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="text-success mb-3">Muchas gracias por confirmar tu presencia</h4>
-            <ul id="listaNombres"></ul>
-            <div class="text-center mt-3">
-              <a href="./index.html" class="btn btn-brand btn-lg px-4">VOLVER A LA INVITACIÓN</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Lógica -->
-  <script>
-    // ⚠️ Usá el /exec ACTUAL (éste ya te funcionó en PowerShell)
- 
+<!-- Lógica -->
+<script>
+  // ⚠️ Dejar UNA sola constante con el /exec ACTUAL (el que probaste por PowerShell)
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyaMNaEkkYDmb-qJZknrDOc9rfKHnIRVI65NHHFEMI7vxDUvt8NdYzv3QWNVGxor7wztQ/exec";
 
+  const formContainer   = document.getElementById("form-container");
+  const btnAgregar      = document.getElementById("btnAgregar");
+  const resultado       = document.getElementById("resultado");
+  const listaNombresEl  = document.getElementById("listaNombres");
+  const tituloPrincipal = document.getElementById("titulo-principal");
 
-    const formContainer   = document.getElementById("form-container");
-    const btnAgregar      = document.getElementById("btnAgregar");
-    const resultado       = document.getElementById("resultado");
-    const listaNombresEl  = document.getElementById("listaNombres");
-    const tituloPrincipal = document.getElementById("titulo-principal");
+  document.addEventListener('DOMContentLoaded', () => setFechaHoy());
 
-    document.addEventListener('DOMContentLoaded', () => setFechaHoy());
+  btnAgregar.addEventListener("click", () => {
+    const ocultos = [...document.querySelectorAll(".registro.oculto")];
+    if (ocultos.length > 0) ocultos[0].classList.remove("oculto");
+  });
 
-    btnAgregar.addEventListener("click", () => {
-      const ocultos = [...document.querySelectorAll(".registro.oculto")];
-      if (ocultos.length > 0) ocultos[0].classList.remove("oculto");
-    });
-
-    function setFechaHoy() {
-      const hoy = new Date().toISOString().split("T")[0];
-      for (let i = 1; i <= 5; i++) {
-        const f = document.getElementById(`fecha-${i}`);
-        if (f) f.value = hoy;
-      }
+  function setFechaHoy() {
+    const hoy = new Date().toISOString().split("T")[0];
+    for (let i = 1; i <= 5; i++) {
+      const f = document.getElementById(`fecha-${i}`);
+      if (f) f.value = hoy;
     }
+  }
 
-    function val(id) { return document.getElementById(id)?.value.trim() || ""; }
+  function val(id) { return document.getElementById(id)?.value.trim() || ""; }
 
-    document.addEventListener("input", (e) => {
-      if (e.target.id && e.target.id.startsWith("dni-")) {
-        e.target.value = e.target.value.replace(/\D/g, "").substring(0, 9);
-      }
-    });
+  document.addEventListener("input", (e) => {
+    if (e.target.id && e.target.id.startsWith("dni-")) {
+      e.target.value = e.target.value.replace(/\D/g, "").substring(0, 9);
+    }
+  });
 
-    document.getElementById("asistenciaForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.getElementById("asistenciaForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const registros = [];
-      listaNombresEl.innerHTML = "";
+    const registros = [];
+    listaNombresEl.innerHTML = "";
 
-      for (let i = 1; i <= 5; i++) {
-        const nombre      = val(`nombre-${i}`);
-        const apellido    = val(`apellido-${i}`);
-        const dni         = val(`dni-${i}`);
-        const comentarios = val(`comentarios-${i}`);
-        const email       = val(`email-${i}`);
-        const fecha       = val(`fecha-${i}`);
+    for (let i = 1; i <= 5; i++) {
+      const nombre      = val(`nombre-${i}`);
+      const apellido    = val(`apellido-${i}`);
+      const dni         = val(`dni-${i}`);
+      const comentarios = val(`comentarios-${i}`);
+      const email       = val(`email-${i}`);
+      const fecha       = val(`fecha-${i}`);
 
-        if (!nombre && !apellido && !dni && !comentarios) continue;
+      if (!nombre && !apellido && !dni && !comentarios) continue;
 
-        if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
-          alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
-          return;
-        }
-
-        registros.push({ nombre, apellido, dni, email, comentarios, fecha });
-
-        const li = document.createElement("li");
-        li.textContent = `${nombre} ${apellido}`;
-        listaNombresEl.appendChild(li);
-      }
-
-      if (registros.length === 0) {
-        alert("Cargá al menos un Invitado.");
+      if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
+        alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
         return;
       }
 
-      try {
-        // 👉 POST simple (form-url-encoded) en mode:'no-cors' para evitar bloqueo CORS
-        const payload = new URLSearchParams();
-        payload.append('data', JSON.stringify({ registros }));
+      registros.push({ nombre, apellido, dni, email, comentarios, fecha });
 
-        await fetch(WEBAPP_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" }, // sin charset para que sea simple request
-          body: payload
-        });
+      const li = document.createElement("li");
+      li.textContent = `${nombre} ${apellido}`;
+      listaNombresEl.appendChild(li);
+    }
 
-        // Si la request se pudo enviar, consideramos OK (la respuesta es opaca en no-cors)
-        document.getElementById("asistenciaForm").reset();
-        formContainer.classList.add("d-none");
-        tituloPrincipal.classList.add("d-none");
-        resultado.classList.remove("d-none");
+    if (registros.length === 0) {
+      alert("Cargá al menos un Invitado.");
+      return;
+    }
 
-      } catch (err) {
-        console.error(err);
-        alert("Ocurrió un error de red. Intentá nuevamente.");
-      }
-    });
-  </script>
-</body>
-</html>
-``
+    try {
+      // 👉 POST simple + no-cors (no intentamos leer la respuesta)
+      const payload = new URLSearchParams();
+      payload.append('data', JSON.stringify({ registros }));
 
+      await fetch(WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: payload
+      });
 
+      document.getElementById("asistenciaForm").reset();
+      formContainer.classList.add("d-none");
+      tituloPrincipal.classList.add("d-none");
+      resultado.classList.remove("d-none");
 
+    } catch (err) {
+      console.error(err);
+      alert("Ocurrió un error de red. Intentá nuevamente.");
+    }
+  });
+</script>
