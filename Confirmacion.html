@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Confirmar Asistencia</title>
 
-  <!-- Bootstrap -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet" />
 
   <style>
     :root{
-      /* 🎨 Marrón del arte (podés ajustar fino si querés) */
+      /* 🎨 Paleta */
       --brand-brown: #4B3523;
-      --brand-brown-600: #3F2B1B;  /* hover/active */
+      --brand-brown-600: #3F2B1B;
       --brand-contrast: #ffffff;
 
-      /* Capa translúcida para legibilidad del contenido sobre fondo oscuro */
+      /* Legibilidad */
       --scrim: rgba(255,255,255,.86);
 
-      /* Tarjetas del formulario */
+      /* Tarjetas */
       --card-bg: rgba(255,255,255,.96);
       --card-border: #e5e7eb;
     }
 
-    /* Fondo marrón liso en toda la página */
+    /* Fondo base */
     html, body{
       height: 100%;
       margin: 0;
@@ -32,7 +32,7 @@
       color: #111;
     }
 
-    /* Capa de suavizado para que el formulario se lea bien */
+    /* Capa translúcida */
     .page-scrim{
       min-height: 100vh;
       background: var(--scrim);
@@ -48,7 +48,7 @@
       text-align: center;
     }
 
-    /* Tarjetas por invitado */
+    /* Tarjetas */
     .registro{
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -57,32 +57,29 @@
     }
     .registro + .registro{ margin-top: 1rem; }
 
-    /* Botones con tema marrón */
+    /* Botones */
     .btn-brand{
       background-color: var(--brand-brown);
       border-color: var(--brand-brown);
       color: var(--brand-contrast);
     }
-    .btn-brand:hover,
-    .btn-brand:focus{
+    .btn-brand:hover, .btn-brand:focus{
       background-color: var(--brand-brown-600);
       border-color: var(--brand-brown-600);
       color: var(--brand-contrast);
     }
-
     .btn-outline-brand{
       color: var(--brand-brown);
       border-color: var(--brand-brown);
       background: transparent;
     }
-    .btn-outline-brand:hover,
-    .btn-outline-brand:focus{
+    .btn-outline-brand:hover, .btn-outline-brand:focus{
       color: var(--brand-contrast);
       background-color: var(--brand-brown);
       border-color: var(--brand-brown);
     }
 
-    /* Lista de confirmados en negrita */
+    /* Lista confirmados */
     #listaNombres li { font-weight: 700; }
 
     /* Utilidad */
@@ -91,7 +88,6 @@
 </head>
 
 <body>
-  <!-- Capa de lectura sobre el fondo marrón -->
   <div class="page-scrim">
     <div class="container py-4">
 
@@ -100,7 +96,7 @@
         Por favor confirmá tu asistencia a mi Cumple
       </h3>
 
-      <!-- ✅ Formulario visible desde el inicio (sin botón previo) -->
+      <!-- Formulario -->
       <div id="form-container">
         <form id="asistenciaForm" novalidate>
           <div id="registros-container">
@@ -108,25 +104,22 @@
             <!-- REGISTRO 1 -->
             <div class="registro" data-index="1">
               <h5>Invitado 1</h5>
-
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label">Nombre *</label>
                   <input type="text" id="nombre-1" class="form-control" required>
                 </div>
-
                 <div class="col-12">
                   <label class="form-label">Apellido *</label>
                   <input type="text" id="apellido-1" class="form-control" required>
                 </div>
-
                 <div class="col-12">
                   <label class="form-label">DNI *</label>
                   <input type="text" id="dni-1" class="form-control" maxlength="9" inputmode="numeric" required>
                   <div class="form-text">Solo números (7 a 9 dígitos).</div>
                 </div>
 
-                <!-- EMAIL oculto (se mantiene para el envío) -->
+                <!-- EMAIL oculto (opcional) -->
                 <input type="hidden" id="email-1" value="" class="d-none">
 
                 <div class="col-12">
@@ -189,10 +182,8 @@
         <div class="card">
           <div class="card-body">
             <h4 class="text-success mb-3">Muchas gracias por confirmar tu presencia</h4>
-            <p></p>
             <ul id="listaNombres"></ul>
 
-            <!-- ⬇️ Botón marrón para volver a la invitación -->
             <div class="text-center mt-3">
               <a href="./index.html" class="btn btn-brand btn-lg px-4">VOLVER A LA INVITACIÓN</a>
             </div>
@@ -206,9 +197,10 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- Lógica -->
   <script>
-    const WEBAPP_URL =
-     "https://script.google.com/macros/s/AKfycbyaMNaEkkYDmb-qJZknrDOc9rfKHnlRVI65NHHFEMI7vxDUvt8NdYZv3QWNvGxor7wztQ/exec";
+    // ⚠️ Usá el /exec ACTUAL del WebApp (este es el que probaste con PowerShell)
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyaMNaEkkYDmb-qJZknrDOc9rfKHnIRVI65NHHFEMI7vxDUvt8NdYzv3QWNVGxor7wztQ/exec";
 
     const formContainer   = document.getElementById("form-container");
     const btnAgregar      = document.getElementById("btnAgregar");
@@ -216,10 +208,8 @@
     const listaNombresEl  = document.getElementById("listaNombres");
     const tituloPrincipal = document.getElementById("titulo-principal");
 
-    /* ✅ Mostrar formulario de entrada y setear fecha al cargar */
-    document.addEventListener('DOMContentLoaded', () => {
-      setFechaHoy();
-    });
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => setFechaHoy());
 
     // Agregar persona (máximo 5)
     btnAgregar.addEventListener("click", () => {
@@ -236,6 +226,9 @@
       }
     }
 
+    // Helper robusto
+    function val(id) { return document.getElementById(id)?.value.trim() || ""; }
+
     // DNI solo números
     document.addEventListener("input", (e) => {
       if (e.target.id && e.target.id.startsWith("dni-")) {
@@ -243,9 +236,7 @@
       }
     });
 
-    function val(id) { return document.getElementById(id)?.value.trim() || ""; }
-
-    // Enviar → oculta formulario y título; muestra resultado
+    // Submit del formulario
     document.getElementById("asistenciaForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -253,17 +244,17 @@
       listaNombresEl.innerHTML = "";
 
       for (let i = 1; i <= 5; i++) {
-        const nombre = val(`nombre-${i}`);
-        const apellido = val(`apellido-${i}`);
-        const dni = val(`dni-${i}`);
+        const nombre      = val(`nombre-${i}`);
+        const apellido    = val(`apellido-${i}`);
+        const dni         = val(`dni-${i}`);
         const comentarios = val(`comentarios-${i}`);
-        const email = val(`email-${i}`); // se mantiene para el envío (oculto)
-        const fecha = val(`fecha-${i}`);
+        const email       = val(`email-${i}`); // oculto (opcional)
+        const fecha       = val(`fecha-${i}`);
 
-        // Ignorar registros totalmente vacíos
+        // Ignorar tarjetas vacías
         if (!nombre && !apellido && !dni && !comentarios) continue;
 
-        // Validación mínima (nombre, apellido, dni)
+        // Validación mínima
         if (!/^\d{7,9}$/.test(dni) || !nombre || !apellido) {
           alert("Revisá Nombre, Apellido y DNI (7 a 9 dígitos).");
           return;
@@ -271,7 +262,7 @@
 
         registros.push({ nombre, apellido, dni, email, comentarios, fecha });
 
-        // Agregar al listado visible
+        // Mostrar en la lista
         const li = document.createElement("li");
         li.textContent = `${nombre} ${apellido}`;
         listaNombresEl.appendChild(li);
@@ -283,19 +274,29 @@
       }
 
       try {
-        await fetch(WEBAPP_URL, {
+        // POST simple (form-url-encoded) → evita preflight CORS
+        const payload = new URLSearchParams();
+        payload.append('data', JSON.stringify({ registros }));
+
+        const resp = await fetch(WEBAPP_URL, {
           method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ registros })
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body: payload
         });
 
-        // Ocultar formulario y título
+        // (Opcional para depurar)
+        // const text = await resp.text(); console.log("Respuesta:", text);
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          alert("No se insertó. HTTP " + resp.status + " - " + text.slice(0, 200));
+          return;
+        }
+
+        // Éxito → reset y mensaje
         document.getElementById("asistenciaForm").reset();
         formContainer.classList.add("d-none");
         tituloPrincipal.classList.add("d-none");
-
-        // Mostrar resultado final
         resultado.classList.remove("d-none");
 
       } catch (err) {
@@ -304,8 +305,5 @@
       }
     });
   </script>
-
 </body>
 </html>
-
-
