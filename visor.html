@@ -124,10 +124,32 @@ function startSlideshow(){
   }, 5000);
 }
 
-db.collection("fotos").orderBy("fecha", "asc").onSnapshot(snapshot => {
-  fotos = [];
-  snapshot.forEach(doc => {
-    fotos.push(doc.data().url);
+db.collection("fotos")
+  .orderBy("fecha", "asc")
+  .onSnapshot(snapshot => {
+
+    fotos = [];
+    index = 0;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data || !data.url) return;
+
+      const img = new Image();
+      img.src = data.url;
+
+      img.onload = () => {
+        fotos.push(data.url);
+        // si es la primera imagen válida, arrancamos
+        if (fotos.length === 1) {
+          startSlideshow();
+        }
+      };
+
+      img.onerror = () => {
+        console.warn("Imagen inválida omitida en visor:", data.url);
+      };
+    });
   });
   startSlideshow();
 });
