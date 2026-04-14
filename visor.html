@@ -7,47 +7,17 @@ firebase.initializeApp({
 });
 
 const db = firebase.firestore();
-
 const visorImg = document.getElementById("visorImg");
-const aspectSelect = document.getElementById("aspectSelect");
-const maxWidth = document.getElementById("maxWidth");
-const mwVal = document.getElementById("mwVal");
-
-function applyAspect(value) {
-  const visor = document.querySelector(".visor");
-  if (value === "auto") {
-    visor.style.aspectRatio = "auto";
-    visor.style.minHeight = "360px";
-  } else {
-    visor.style.aspectRatio = value;
-    visor.style.minHeight = "";
-  }
-}
-
-function applyMaxWidth(px) {
-  document.querySelector(".visor").style.maxWidth = px + "px";
-  mwVal.textContent = px;
-}
-
-aspectSelect.onchange = e => applyAspect(e.target.value);
-maxWidth.oninput = e => applyMaxWidth(e.target.value);
-
-applyAspect(aspectSelect.value);
-applyMaxWidth(maxWidth.value);
-
-/* ================= SLIDESHOW LIMPIO ================= */
 
 let fotos = [];
 let index = 0;
 let interval = null;
 
+/* ====== SLIDESHOW ====== */
+
 function startSlideshow() {
   if (interval) clearInterval(interval);
-
-  if (fotos.length === 0) {
-    visorImg.removeAttribute("src");
-    return;
-  }
+  if (fotos.length === 0) return;
 
   visorImg.src = fotos[0];
   index = 1;
@@ -58,47 +28,29 @@ function startSlideshow() {
   }, 5000);
 }
 
+/* 👉 Si una imagen falla, saltamos a la siguiente */
+visorImg.onerror = () => {
+  console.warn("Imagen rota saltada:", visorImg.src);
+  if (fotos.length === 0) return;
+  visorImg.src = fotos[index];
+  index = (index + 1) % fotos.length;
+};
+
+/* ====== FIRESTORE ====== */
+
 db.collection("fotos")
   .orderBy("fecha", "asc")
   .onSnapshot(snapshot => {
-
     fotos = [];
     index = 0;
-
-    const urls = [];
 
     snapshot.forEach(doc => {
       const data = doc.data();
       if (data && data.url) {
-        urls.push(data.url);
+        fotos.push(data.url);
       }
     });
 
-    // Validar imágenes secuencialmente (robusto)
-    let i = 0;
-
-    function validarSiguiente() {
-      if (i >= urls.length) {
-        startSlideshow();
-        return;
-      }
-
-      const img = new Image();
-      img.src = urls[i];
-
-      img.onload = () => {
-        fotos.push(urls[i]);
-        i++;
-        validarSiguiente();
-      };
-
-      img.onerror = () => {
-        console.warn("Imagen inválida omitida en visor:", urls[i]);
-        i++;
-        validarSiguiente();
-      };
-    }
-
-    validarSiguiente();
+    startSlideshow();
   });
 </script>
