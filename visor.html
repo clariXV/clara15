@@ -5,29 +5,75 @@
   <title>Visor Fotos en Vivo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root { --visor-aspect: 16 / 9; }
+
     body {
-      margin: 0;
-      background: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: Arial, sans-serif;
+      background:#000;
+      color:#fff;
+      padding:20px;
+      text-align:center;
     }
 
-    img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+    .toolbar {
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .visor {
+      width:100%;
+      max-width:1000px;
+      aspect-ratio: var(--visor-aspect);
+      margin:0 auto;
+      background:#000;
+      border-radius:20px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .visor img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
     }
   </style>
 </head>
 <body>
 
-<img id="visorImg" />
+<h1>📺 Visor en vivo</h1>
 
-<!-- Firebase core -->
-https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js
-https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js>
+<div class="toolbar">
+  <label>
+    Relación
+    <select id="aspectSelect">
+      <option value="16 / 9" selected>16:9</option>
+      <option value="4 / 3">4:3</option>
+      <option value="1 / 1">1:1</option>
+      <option value="21 / 9">21:9</option>
+      <option value="3 / 2">3:2</option>
+      <option value="auto">Auto</option>
+    </select>
+  </label>
+
+  <label>
+    Ancho (px)
+    <input id="maxWidth" type="range" min="600" max="1600" step="20" value="1000">
+    <span id="mwVal">1000</span>
+  </label>
+</div>
+
+<div class="visor">
+  <img id="visorImg" alt="">
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 /* ================= FIREBASE ================= */
@@ -40,22 +86,63 @@ firebase.initializeApp({
 });
 
 const db = firebase.firestore();
+
+/* ================= UI ================= */
+
 const visorImg = document.getElementById("visorImg");
+const aspectSelect = document.getElementById("aspectSelect");
+const maxWidth = document.getElementById("maxWidth");
+const mwVal = document.getElementById("mwVal");
+
+function applyAspect(value) {
+  const visor = document.querySelector(".visor");
+  if (value === "auto") {
+    visor.style.aspectRatio = "auto";
+    visor.style.minHeight = "360px";
+  } else {
+    visor.style.aspectRatio = value;
+    visor.style.minHeight = "";
+  }
+}
+
+function applyMaxWidth(px) {
+  document.querySelector(".visor").style.maxWidth = px + "px";
+  mwVal.textContent = px;
+}
+
+aspectSelect.onchange = e => applyAspect(e.target.value);
+maxWidth.oninput = e => applyMaxWidth(e.target.value);
+
+applyAspect(aspectSelect.value);
+applyMaxWidth(maxWidth.value);
 
 /* ================= SLIDESHOW ================= */
 
 let fotos = [];
 let index = 0;
+let interval = null;
 
-function mostrarSiguiente() {
-  if (fotos.length === 0) return;
-  visorImg.src = fotos[index];
-  index = (index + 1) % fotos.length;
+function startSlideshow() {
+  if (interval) clearInterval(interval);
+  if (!fotos.length) return;
+
+  visorImg.src = fotos[0];
+  index = 1;
+
+  interval = setInterval(() => {
+    visorImg.src = fotos[index];
+    index = (index + 1) % fotos.length;
+  }, 5000);
 }
 
+/* ✅ CLAVE DEL ARREGLO:
+   Si una imagen falla, se salta automáticamente */
 visorImg.onerror = () => {
   console.warn("Imagen rota omitida:", visorImg.src);
-  mostrarSiguiente();
+  if (!fotos.length) return;
+
+  visorImg.src = fotos[index];
+  index = (index + 1) % fotos.length;
 };
 
 /* ================= FIRESTORE ================= */
@@ -73,10 +160,7 @@ db.collection("fotos")
       }
     });
 
-    if (fotos.length > 0) {
-      mostrarSiguiente();
-      setInterval(mostrarSiguiente, 5000);
-    }
+    startSlideshow();
   });
 </script>
 
