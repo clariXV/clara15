@@ -1,4 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Visor Fotos en Vivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+<img id="visorImg" />
+
+<!-- Firebase core -->
+https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js
+https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js>
+
 <script>
+/* ================= FIREBASE ================= */
+
 firebase.initializeApp({
   apiKey: "AIzaSyDwuP4lEqYSXzuccATa_s3QzfUKpWIVq_g",
   authDomain: "clari-xv.firebaseapp.com",
@@ -9,34 +42,23 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const visorImg = document.getElementById("visorImg");
 
+/* ================= SLIDESHOW ================= */
+
 let fotos = [];
 let index = 0;
-let interval = null;
 
-/* ====== SLIDESHOW ====== */
-
-function startSlideshow() {
-  if (interval) clearInterval(interval);
-  if (fotos.length === 0) return;
-
-  visorImg.src = fotos[0];
-  index = 1;
-
-  interval = setInterval(() => {
-    visorImg.src = fotos[index];
-    index = (index + 1) % fotos.length;
-  }, 5000);
-}
-
-/* 👉 Si una imagen falla, saltamos a la siguiente */
-visorImg.onerror = () => {
-  console.warn("Imagen rota saltada:", visorImg.src);
+function mostrarSiguiente() {
   if (fotos.length === 0) return;
   visorImg.src = fotos[index];
   index = (index + 1) % fotos.length;
+}
+
+visorImg.onerror = () => {
+  console.warn("Imagen rota omitida:", visorImg.src);
+  mostrarSiguiente();
 };
 
-/* ====== FIRESTORE ====== */
+/* ================= FIRESTORE ================= */
 
 db.collection("fotos")
   .orderBy("fecha", "asc")
@@ -51,6 +73,12 @@ db.collection("fotos")
       }
     });
 
-    startSlideshow();
+    if (fotos.length > 0) {
+      mostrarSiguiente();
+      setInterval(mostrarSiguiente, 5000);
+    }
   });
 </script>
+
+</body>
+</html>
