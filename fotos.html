@@ -45,19 +45,27 @@
       object-fit:cover;
     }
 
+    /* ✅ BOTÓN ELIMINAR AJUSTADO */
     .btn-eliminar {
       position:absolute;
-      top:6px;
-      right:6px;
+      top:5px;
+      right:5px;
+
+      width:18px;
+      height:18px;
+
       background:rgba(220,20,60,0.95);
-      color:#fff;
+      color:white;
       border:none;
       border-radius:50%;
-      width:22px;
-      height:22px;
-      cursor:pointer;
-      font-size:14px;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      font-size:12px;
       line-height:1;
+      cursor:pointer;
     }
   </style>
 </head>
@@ -78,7 +86,7 @@
 <script>
 /* ================= CONFIG ================= */
 
-const CLAVE_ORGANIZADOR = "clari15"; // 🔐 contraseña de borrado
+const CLAVE_ORGANIZADOR = "clari15";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDwuP4lEqYSXzuccATa_s3QzfUKpWIVq_g",
@@ -138,7 +146,7 @@ async function eliminarFoto(docId, fullPath) {
   }
 }
 
-/* ================= GALERÍA (sin fotos vacías) ================= */
+/* ================= GALERÍA (SIN FOTOS VACÍAS) ================= */
 
 db.collection("fotos")
   .orderBy("fecha", "asc")
@@ -151,7 +159,6 @@ db.collection("fotos")
 
       const img = new Image();
       img.src = data.url;
-      img.alt = "";
 
       img.onload = () => {
         const cont = document.createElement("div");
