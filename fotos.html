@@ -157,26 +157,25 @@ db.collection("fotos")
       const data = doc.data();
       if (!data || !data.url || !data.fullPath) return;
 
-      const img = new Image();
-      img.src = data.url;
+     const cont = document.createElement("div");
+cont.className = "foto-item";
 
-      img.onload = () => {
-        const cont = document.createElement("div");
-        cont.className = "foto-item";
+const img = document.createElement("img");
+img.src = data.url;
 
-        const btn = document.createElement("button");
-        btn.className = "btn-eliminar";
-        btn.textContent = "✕";
-        btn.onclick = () => eliminarFoto(doc.id, data.fullPath);
+img.onerror = () => {
+  console.warn("Imagen inválida omitida:", data.url);
+  cont.remove(); // ✅ no se muestra la foto rota
+};
 
-        cont.appendChild(img);
-        cont.appendChild(btn);
-        galeria.appendChild(cont);
-      };
+const btn = document.createElement("button");
+btn.className = "btn-eliminar";
+btn.textContent = "✕";
+btn.onclick = () => eliminarFoto(doc.id, data.fullPath);
 
-      img.onerror = () => {
-        console.warn("Imagen inválida omitida:", data.url);
-      };
+cont.appendChild(img);
+cont.appendChild(btn);
+galeria.appendChild(cont);
     });
   });
 </script>
