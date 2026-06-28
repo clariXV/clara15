@@ -157,13 +157,15 @@ async function eliminarFoto(docId, fullPath) {
 
   if (!confirm("¿Eliminar esta foto definitivamente?")) return;
 
-  try {
-    await storage.ref(fullPath).delete();
-    await db.collection("fotos").doc(docId).delete();
-  } catch (e) {
-    alert("Error al eliminar la foto");
-    console.error(e);
-  }
+ try {
+  await storage.ref(fullPath).delete();
+} catch (e) {
+  console.warn("El archivo ya no existe en Storage");
+}
+
+// ✅ SIEMPRE borrar el documento
+await db.collection("fotos").doc(docId).delete();
+
 }
 
 /* ================= GALERÍA (SIN FOTOS VACÍAS) ================= */
