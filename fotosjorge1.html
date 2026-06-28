@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Fotos en vivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:#f8f8f8;
+      padding:20px;
+      text-align:center;
+    }
+
+    h1 { margin:20px 0; }
+
+    button {
+      background:#d63384;
+      color:#fff;
+      border:none;
+      padding:12px 20px;
+      border-radius:20px;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+/* ✅ FOTO RESPONSIVA (CELU + PC) */
+#contenedor-foto {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+}
+
+#contenedor-foto img {
+  max-width: 95%;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+}
+
+
+    .galeria {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+      gap:10px;
+      margin-top:20px;
+    }
+
+    .foto-item {
+      position:relative;
+      width:100%;
+      height:120px;
+      border-radius:10px;
+      overflow:hidden;
+    }
+
+    .foto-item img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    /* ✅ BOTÓN ELIMINAR AJUSTADO */
+    .btn-eliminar {
+      position:absolute;
+      top:5px;
+      right:5px;
+
+      width:18px;
+      height:18px;
+
+      background:rgba(220,20,60,0.95);
+      color:white;
+      border:none;
+      border-radius:50%;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      font-size:12px;
+      line-height:1;
+      cursor:pointer;
+    }
+
+  </style>
+</head>
+<body>
+
+<h1>📸 Fotos en vivo !!</h1>
+
+<input type="file" id="fileInput" accept="image/*" hidden>
+<button id="btnSubir">📸 Subí tu foto</button>
+
+<div id="galeria" class="galeria"></div>
+<div id="contenedor-foto">
+  <img src="vengala.jpeg" alt="foto">
+</div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ================= CONFIG ================= */
+
+const CLAVE_ORGANIZADOR = "clari15";
+
+firebase.initializeApp({
+  apiKey: "AIzaSyDwuP4lEqYSXzuccATa_s3QzfUKpWIVq_g",
+  authDomain: "clari-xv.firebaseapp.com",
+  projectId: "clari-xv",
+  storageBucket: "clari-xv.firebasestorage.app",
+  appId: "1:760531084277:web:f1ca4ce5fbe20a9ce3b6bc"
+});
+
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+/* ================= SUBIR FOTO ================= */
+
+const fileInput = document.getElementById("fileInput");
+const btnSubir = document.getElementById("btnSubir");
+const galeria = document.getElementById("galeria");
+
+btnSubir.onclick = () => fileInput.click();
+
+fileInput.onchange = async () => {
+  const file = fileInput.files[0];
+  if (!file || !file.type.startsWith("image/")) return;
+
+  const path = "fotos/" + Date.now() + "_" + file.name;
+  const ref = storage.ref(path);
+
+  const snap = await ref.put(file);
+  const url = await snap.ref.getDownloadURL();
+
+  await db.collection("fotos").add({
+    url,
+    fullPath: path,
+    fecha: new Date()
+  });
+
+  fileInput.value = "";
+};
+
+/* ================= ELIMINAR FOTO ================= */
+
+async function eliminarFoto(docId, fullPath) {
+  const clave = prompt("Clave de administrador");
+  if (clave !== CLAVE_ORGANIZADOR) {
+    alert("❌ Clave incorrecta");
+    return;
+  }
+
+  if (!confirm("¿Eliminar esta foto definitivamente?")) return;
+
+  try {
+    await storage.ref(fullPath).delete();
+    await db.collection("fotos").doc(docId).delete();
+  } catch (e) {
+    alert("Error al eliminar la foto");
+    console.error(e);
+  }
+}
+
+/* ================= GALERÍA (SIN FOTOS VACÍAS) ================= */
+
+db.collection("fotos")
+  .orderBy("fecha", "asc")
+  .onSnapshot(snapshot => {
+    galeria.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data || !data.url || !data.fullPath) return;
+
+const cont = document.createElement("div");
+cont.className = "foto-item";
+
+const img = document.createElement("img");
+img.src = data.url;
+
+const btn = document.createElement("button");
+btn.className = "btn-eliminar";
+btn.textContent = "✕";
+btn.onclick = () => eliminarFoto(doc.id, data.fullPath);
+
+cont.appendChild(img);
+cont.appendChild(btn);
+galeria.appendChild(cont);
+
+      img.onerror = () => {
+        console.warn("Imagen inválida omitida:", data.url);
+      };
+    });
+  });
+</script>
+
+</body>
+</html>
