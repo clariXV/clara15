@@ -129,14 +129,15 @@ fileInput.onchange = async () => {
   const path = "fotos/" + Date.now() + "_" + file.name;
   const ref = storage.ref(path);
 
-    // ✅ MOSTRAR POPUP INMEDIATAMNETE
-  document.getElementById("popup").style.display = "flex";
-  
+const uploadTask = ref.put(file);
+
+// ✅ MOSTRAR POPUP INMEDIATO (pero SIN bloquear la subida)
 setTimeout(() => {
   document.getElementById("popup").style.display = "flex";
-}, 10);
+}, 0);
 
-const snap = await ref.put(file);
+const snap = await uploadTask;
+
 
   
   const url = await snap.ref.getDownloadURL();
