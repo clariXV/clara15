@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Fotos en vivo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,17 +25,7 @@
       cursor:pointer;
     }
 
-    /* ✅ MENSAJE */
-    #mensajeFinal {
-      display:none;
-      margin-top:20px;
-    }
-
-    #mensajeFinal h2 {
-      color:#28a745;
-    }
-
-    /* ✅ FOTO RESPONSIVA */
+    /* FOTO RESPONSIVA */
     #contenedor-foto {
       display: flex;
       justify-content: center;
@@ -45,56 +36,42 @@
     #contenedor-foto img {
       max-width: 95%;
       max-height: 80vh;
-      width: auto;
-      height: auto;
       border-radius: 12px;
     }
 
     .galeria {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-      gap:10px;
-      margin-top:20px;
+      display:none;
     }
 
-    .foto-item {
-      position:relative;
-      width:100%;
-      height:120px;
-      border-radius:10px;
-      overflow:hidden;
-    }
-
-    .foto-item img {
+    /* ✅ POPUP */
+    #popup {
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
       width:100%;
       height:100%;
-      object-fit:cover;
-    }
-
-    .btn-eliminar {
-      position:absolute;
-      top:5px;
-      right:5px;
-      width:18px;
-      height:18px;
-      background:rgba(220,20,60,0.95);
-      color:white;
-      border:none;
-      border-radius:50%;
-      display:flex;
-      align-items:center;
+      background:rgba(0,0,0,0.6);
       justify-content:center;
-      font-size:12px;
-      line-height:1;
-      cursor:pointer;
+      align-items:center;
+      z-index:999;
     }
 
-    .galeria {
-      display: none;
+    #popupContenido {
+      background:#fff;
+      padding:30px;
+      border-radius:15px;
+      text-align:center;
+      max-width:300px;
+    }
+
+    #popupContenido h2 {
+      color:#28a745;
     }
 
   </style>
 </head>
+
 <body>
 
 <h1>📸 Fotos en vivo !!</h1>
@@ -102,10 +79,12 @@
 <input type="file" id="fileInput" accept="image/*" hidden>
 <button id="btnSubir">📸 Subí tu foto</button>
 
-<!-- ✅ MENSAJE FINAL -->
-<div id="mensajeFinal">
-  <h2>✅ Gracias por subir tu foto</h2>
-  <button onclick="location.reload()">SUBIR OTRA FOTO</button>
+<!-- ✅ POPUP -->
+<div id="popup">
+  <div id="popupContenido">
+    <h2>✅ Gracias por subir tu foto</h2>
+    <button onclick="location.reload()">SUBIR OTRA FOTO</button>
+  </div>
 </div>
 
 <div id="galeria" class="galeria"></div>
@@ -140,7 +119,6 @@ const db = firebase.firestore();
 
 const fileInput = document.getElementById("fileInput");
 const btnSubir = document.getElementById("btnSubir");
-const mensajeFinal = document.getElementById("mensajeFinal");
 
 btnSubir.onclick = () => fileInput.click();
 
@@ -162,9 +140,8 @@ fileInput.onchange = async () => {
 
   fileInput.value = "";
 
-  // ✅ OCULTAR BOTÓN Y MOSTRAR MENSAJE
-  btnSubir.style.display = "none";
-  mensajeFinal.style.display = "block";
+  // ✅ MOSTRAR POPUP
+  document.getElementById("popup").style.display = "flex";
 };
 
 /* ================= ELIMINAR FOTO ================= */
