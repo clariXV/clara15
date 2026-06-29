@@ -122,7 +122,7 @@ const fileInput = document.getElementById("fileInput");
 const btnSubir = document.getElementById("btnSubir");
 
 btnSubir.onclick = () => fileInput.click();
-
+/**********************************************
 fileInput.onchange = async () => {
   const file = fileInput.files[0];
   if (!file || !file.type.startsWith("image/")) return;
@@ -146,7 +146,35 @@ fileInput.onchange = async () => {
   // ✅ MOSTRAR POPUP
   document.getElementById("popup").style.display = "flex";
 };
+*************************************/
 
+  fileInput.onchange = async () => {
+  const file = fileInput.files[0];
+  if (!file || !file.type.startsWith("image/")) return;
+
+  const path = "fotos/" + Date.now() + "_" + file.name;
+  const ref = storage.ref(path);
+
+  const uploadTask = ref.put(file); // ✅ inicia subida
+
+  // ✅ popup inmediato
+  document.getElementById("popup").style.display = "flex";
+
+  const snap = await uploadTask; // ✅ espera después
+
+  const url = await snap.ref.getDownloadURL();
+
+  await db.collection("fotos").add({
+    url,
+    fullPath: path,
+    fecha: new Date()
+  });
+
+  fileInput.value = "";
+
+  document.getElementById("popup").style.display = "flex";
+};
+  
 /* ================= ELIMINAR FOTO ================= */
 
 async function eliminarFoto(docId, fullPath) {
