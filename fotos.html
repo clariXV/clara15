@@ -121,7 +121,7 @@ const fileInput = document.getElementById("fileInput");
 const btnSubir = document.getElementById("btnSubir");
 
 btnSubir.onclick = () => fileInput.click();
-
+/*
 fileInput.onchange = async () => {
   const file = fileInput.files[0];
   if (!file || !file.type.startsWith("image/")) return;
@@ -130,6 +130,21 @@ fileInput.onchange = async () => {
   const ref = storage.ref(path);
 
   const snap = await ref.put(file);
+  */
+  /**********************************************************/
+  fileInput.onchange = async () => {
+    const file = fileInput.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
+  // ✅ MOSTRAR POPUP INMEDIATAMENTE
+  document.getElementById("popup").style.display = "flex";
+
+  const path = "fotos/" + Date.now() + "_" + file.name;
+  const ref = storage.ref(path);
+
+  const snap = await ref.put(file);
+ /************************************************************/
+  
   const url = await snap.ref.getDownloadURL();
 
   await db.collection("fotos").add({
