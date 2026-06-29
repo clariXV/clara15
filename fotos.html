@@ -132,7 +132,11 @@ fileInput.onchange = async () => {
     // ✅ MOSTRAR POPUP INMEDIATAMNETE
   document.getElementById("popup").style.display = "flex";
   
-  const snap = await ref.put(file);
+  setTimeout(() => {
+  document.getElementById("popup").style.display = "flex";
+}, 10);
+
+const snap = await ref.put(file);
 
   
   const url = await snap.ref.getDownloadURL();
